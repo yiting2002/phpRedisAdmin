@@ -15,7 +15,19 @@ if (isset($_GET['reset']) && method_exists($redis, 'resetStat')) {
 
 
 // Fetch the info
-$info = $redis->info();
+if (!empty($server['nodes'])) {
+  $info = array();
+  $clients = iterator_to_array($redis, false);
+  usort($clients, function ($a, $b) { return strcmp($a->getConnection(), $b->getConnection()); });
+  foreach ($clients as $k => $client) {
+    $r = $client->info();
+    foreach ($r as $key => $value) {
+      $info[$key."[$k]"] = $value;
+    }
+  }
+} else {
+  $info = $redis->info();
+}
 $alt  = false;
 
 

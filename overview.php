@@ -17,6 +17,9 @@ foreach ($config['servers'] as $j => $server) {
     $redis = new Predis\Client(array('scheme' => 'unix', 'path' => $server['path']));
   } else if(isset($server['scheme']) && $server['scheme'] === 'cluster' && !empty($server['nodes'])) {
     $redis = new Predis\Client($server['nodes'], array('cluster' => 'redis'));
+    if (isset($server['ask_slots'])) {
+      $redis->getConnection()->useClusterSlots($server['ask_slots']);
+    }
     $server['db'] = 0;
     $server['databases'] = 1;
   } else {
